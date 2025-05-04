@@ -1,22 +1,27 @@
 CXX = g++
-CXXFLAGS = -Iinclude -Wall -Wextra
-SRC_DIR = src
-BIN_DIR = bin
-SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/vector.cpp
-TARGET = $(BIN_DIR)/program
-TEST_DIR = .
-TEST_LIB = $(TEST_DIR)/libVectorTest.a
+MAIN_TARGET = main
+TEST_TARGET = vector_test
+SRC = src/vector.cpp src/main.cpp
+TEST_SRC = src/vector.cpp
+FLAGS = -L. -lVectorTest
 
-all: $(TARGET)
+all: $(MAIN_TARGET) $(TEST_TARGET)
 
-$(TARGET): $(SOURCES)
-	@mkdir -p $(BIN_DIR)
-	$(CXX) $(CXXFLAGS) $(SOURCES) -o $(TARGET)
 
-run: $(TARGET)
-	./$(TARGET)
+$(MAIN_TARGET): $(SRC)
+	$(CXX) -o $(MAIN_TARGET) $(SRC)
+
+
+$(TEST_TARGET): $(TEST_SRC)
+	$(CXX) -o $(TEST_TARGET) $(TEST_SRC) $(FLAGS)
+
+run: $(MAIN_TARGET)
+	./$(MAIN_TARGET)
+
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
 
 clean:
-	rm -rf $(BIN_DIR)
+	rm -f $(MAIN_TARGET) $(TEST_TARGET)
 
-.PHONY: all run clean
+

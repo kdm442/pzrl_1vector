@@ -1,11 +1,12 @@
 #include "../include/Vector.h"
-#include <vector> 
 #include <string>
 
 // Деструктор
 Vector::~Vector()
 {
     delete[] _data;
+    _size =0;
+    _capacity =0;
 };
 
     //! Конструктор с параметрами
@@ -112,14 +113,14 @@ Vector& Vector::operator=(Vector&& other) noexcept
     //! Доступ к элементу по индексу
 ValueType& Vector::operator[](size_t idx)
 {
-    if (_size <= idx) {std::cout << "Индекс неподходит\n";};
+    
     return _data[idx];
 };
 
-    //! Доступ к элементу по индексу
+    //! Доступ к элементу по индексу c const
 const ValueType& Vector::operator[](size_t idx) const
 {
-    if (_size <= idx) {std::cout << "Индекс неподходит\n";};
+    
     return _data[idx];
 };
 
@@ -465,7 +466,7 @@ void Vector::erase(size_t pos, size_t count)
         std::cout << "Ошибка (pos > _size)\n";
         return;
     }
-    if (count > _size - pos) // количество удаляемых жлементов больше их количества ? уменьшаем count
+    if (count > _size - pos) // количество удаляемых элементов больше их количества ? уменьшаем count
     {
         count = _size - pos;
     }
@@ -504,8 +505,8 @@ void Vector::eraseBetween(size_t beginPos, size_t endPos)
     }
     
     size_t count = endPos - beginPos;
-    for (size_t i = beginPos; i < _size - count; ++i)               // _size 5
-    {                                                                   // begin 1  // endpos 3
+    for (size_t i = beginPos; i < _size - count; ++i)               
+    {                                                                   
         _data[i] = _data[i + count];                                                                    
     }                                               
     _size -= count;                    

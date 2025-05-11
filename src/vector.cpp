@@ -1,13 +1,22 @@
 #include "../include/Vector.h"
 #include <string>
 
-// Деструктор
-Vector::~Vector()
+// Основная пятерка
+
+//! Конструктор без параметров
+void Vector::printVec() const
 {
-    delete[] _data;
-    _size =0;
-    _capacity =0;
-};
+    std::cout << "{ ";
+    for (size_t i = 0; i < _size; ++i) {  
+        std::cout << _data[i];            
+        if (i != _size - 1) {             
+            std::cout << ", ";
+        }
+    }
+    std::cout << " }" << std::endl;       
+}
+
+
 
     //! Конструктор с параметрами
 Vector::Vector(const ValueType* rawArray, const size_t size, float coef)
@@ -107,8 +116,16 @@ Vector& Vector::operator=(Vector&& other) noexcept
     return *this;
 };
 
+// Деструктор
+Vector::~Vector()
+{
+    delete[] _data;
+    _data = nullptr;
+    _size =0;
+    _capacity =0;
+};
 
-// OPERATOR
+// Операторы
 
     //! Доступ к элементу по индексу
 ValueType& Vector::operator[](size_t idx)
@@ -123,77 +140,8 @@ const ValueType& Vector::operator[](size_t idx) const
     
     return _data[idx];
 };
+// Функции
 
-
-// ITERATOR
-
-Vector::Iterator::Iterator(ValueType* ptr) : _ptr(ptr) {}
-
-ValueType& Vector::Iterator::operator*()
-{
-    return *_ptr;
-};
-
-const ValueType& Vector::Iterator::operator*() const
-{
-    return *_ptr;
-};
-
-ValueType* Vector::Iterator::operator->()
-{
-    return _ptr;
-};
-
-const ValueType* Vector::Iterator::operator->() const
-{
-    return _ptr;
-};
-Vector::Iterator Vector::Iterator::operator++()
-{
-    ++_ptr;
-    return *this;
-};
-Vector::Iterator Vector::Iterator::operator++(int)
-{
-    Iterator tmp = *this;
-    ++_ptr;
-    return *this;
-};
-bool Vector::Iterator::operator==(const Iterator& other) const
-{
-    return _ptr == other._ptr;
-};
-bool Vector::Iterator::operator!=(const Iterator& other) const
-{
-    return _ptr != other._ptr;
-};
-
-	//! Получить итератор на начало вектора
-Vector::Iterator Vector::begin()
-{
-    return Iterator(_data);
-};
-
-	//! Получить итератор на элемент вектора, следующий за последним
-Vector::Iterator Vector::end()
-{
-    return Iterator(_data + _size);
-};
-
-
-// FUNCTION
-
-void Vector::printVec() const // Вывод вектора
-{
-    std::cout << "{ ";
-    for (size_t i = 0; i < _size; ++i) {  
-        std::cout << _data[i];            
-        if (i != _size - 1) {             
-            std::cout << ", ";
-        }
-    }
-    std::cout << " }" << std::endl;       
-}
 
 void Vector::clear() 
 {
@@ -203,7 +151,7 @@ void Vector::clear()
     _capacity = 0;
 }
 
-size_t Vector::size() const // Количество элементов вектора
+size_t Vector::size() const // Количество элементов 
 {
     return _size;
 };
@@ -219,6 +167,39 @@ double Vector::loadFactor() const // Фактор загруженности
     return double(_size) / double(_capacity);
 };
 
+long long Vector::find(const ValueType& value) const // Поиск первого вхождения значения
+{
+    if (_size == 0) 
+    {
+        std::cout << "Ошибка (_size == 0)\n";
+        return -1;
+    }
+    for (size_t i = 0; i < _size; ++i)
+    {
+        if (_data[i] == value)
+        {
+            return static_cast<long long>(i);
+        }
+    }
+    std::cout << "Элемента нет в векторе\n";
+    return -1;
+};
+
+void Vector::reserve(size_t capacity) // Если capacity > _capacity, то выделить новый участок памяти размером capacity и перенести вектор туда, иначе - ничего
+{
+    if (capacity > _capacity)
+    {
+        ValueType* new_data = new ValueType[capacity];
+        for (size_t i = 0; i < _size; ++i)
+        {
+            new_data[i] = _data[i];
+        }
+        delete[] _data;
+        _data = new_data;
+        _capacity = capacity;
+    }
+    else {return;}
+};
 void Vector::shrinkToFit() // Уменьшение памяти до size
 {
     if (_size == _capacity) {return;}
@@ -512,38 +493,61 @@ void Vector::eraseBetween(size_t beginPos, size_t endPos)
     _size -= count;                    
 };
 
+// Итераторы
 
-long long Vector::find(const ValueType& value) const // Поиск первого вхождения значения
+Vector::Iterator::Iterator(ValueType* ptr) : _ptr(ptr) {}
+
+ValueType& Vector::Iterator::operator*()
 {
-    if (_size == 0) 
-    {
-        std::cout << "Ошибка (_size == 0)\n";
-        return -1;
-    }
-    for (size_t i = 0; i < _size; ++i)
-    {
-        if (_data[i] == value)
-        {
-            return static_cast<long long>(i);
-        }
-    }
-    std::cout << "Элемента нет в векторе\n";
-    return -1;
+    return *_ptr;
 };
 
-   
-void Vector::reserve(size_t capacity) // Если capacity > _capacity, то выделить новый участок памяти размером capacity и перенести вектор туда, иначе - ничего
+const ValueType& Vector::Iterator::operator*() const
 {
-    if (capacity > _capacity)
-    {
-        ValueType* new_data = new ValueType[capacity];
-        for (size_t i = 0; i < _size; ++i)
-        {
-            new_data[i] = _data[i];
-        }
-        delete[] _data;
-        _data = new_data;
-        _capacity = capacity;
-    }
-    else {return;}
+    return *_ptr;
 };
+
+ValueType* Vector::Iterator::operator->()
+{
+    return _ptr;
+};
+
+const ValueType* Vector::Iterator::operator->() const
+{
+    return _ptr;
+};
+Vector::Iterator Vector::Iterator::operator++()
+{
+    ++_ptr;
+    return *this;
+};
+Vector::Iterator Vector::Iterator::operator++(int)
+{
+    Iterator tmp = *this;
+    ++_ptr;
+    return *this;
+};
+bool Vector::Iterator::operator==(const Iterator& other) const
+{
+    return _ptr == other._ptr;
+};
+bool Vector::Iterator::operator!=(const Iterator& other) const
+{
+    return _ptr != other._ptr;
+};
+
+	//! Получить итератор на начало вектора
+Vector::Iterator Vector::begin()
+{
+    return Iterator(_data);
+};
+
+	//! Получить итератор на элемент вектора, следующий за последним
+Vector::Iterator Vector::end()
+{
+    return Iterator(_data + _size);
+};
+
+
+
+
